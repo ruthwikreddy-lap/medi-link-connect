@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Activity, ArrowRight, Flask, Pill } from "lucide-react";
+import { Activity, ArrowRight, TestTube, Pill } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HealthUpdate } from "@/models/types";
 import { format } from "date-fns";
@@ -24,7 +24,7 @@ export const HealthUpdatesList: React.FC<HealthUpdatesListProps> = ({
       case 'vital':
         return <Activity className="text-green-500" size={18} />;
       case 'lab':
-        return <Flask className="text-blue-500" size={18} />;
+        return <TestTube className="text-blue-500" size={18} />;
       case 'medication':
         return <Pill className="text-purple-500" size={18} />;
       default:

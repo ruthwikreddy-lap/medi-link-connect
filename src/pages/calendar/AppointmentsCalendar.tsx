@@ -1,10 +1,10 @@
 
 import React, { useState } from "react";
-import { Calendar, CalendarProps } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Header } from "@/components/common/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, Calendar as CalendarIcon } from "lucide-react";
 import { mockAppointments } from "@/data/mockData";
 import { format } from "date-fns";
 import { Appointment } from "@/models/types";
@@ -38,21 +38,29 @@ const AppointmentsCalendar: React.FC = () => {
     dateStr => new Date(dateStr)
   );
   
-  // Custom day renderer to highlight days with appointments
-  const renderDay: CalendarProps["renderDay"] = (day, date) => {
-    const hasAppointment = appointmentDates.some(
-      appDate => appDate.toDateString() === date.toDateString()
-    );
-    
-    return (
-      <div className="relative">
-        {day}
-        {hasAppointment && (
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-medilink-600 rounded-full"></div>
-        )}
-      </div>
-    );
-  };
+  // Create a modified Calendar component that shows dots for days with appointments
+  const calendarWithAppointments = (
+    <Calendar
+      mode="single"
+      selected={selectedDate}
+      onSelect={setSelectedDate}
+      className="rounded-md"
+      modifiers={{
+        appointment: appointmentDates,
+      }}
+      modifiersStyles={{
+        appointment: {
+          // This will add a dot under dates with appointments
+          content: "'·'",
+          display: "block",
+          textAlign: "center",
+          fontSize: "1.5rem", 
+          lineHeight: "0",
+          color: "var(--medilink-600)"
+        }
+      }}
+    />
+  );
 
   return (
     <div className="pb-20">
@@ -61,13 +69,7 @@ const AppointmentsCalendar: React.FC = () => {
       <div className="p-4">
         <Card className="mb-4">
           <CardContent className="p-0">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-md"
-              renderDay={renderDay}
-            />
+            {calendarWithAppointments}
           </CardContent>
         </Card>
         
@@ -128,7 +130,7 @@ const AppointmentsCalendar: React.FC = () => {
             </div>
           ) : selectedDate ? (
             <div className="text-center py-8 bg-gray-50 rounded-lg">
-              <Calendar size={40} className="mx-auto text-gray-300" />
+              <CalendarIcon className="mx-auto text-gray-300 h-10 w-10" />
               <p className="mt-2 text-gray-500">No appointments for this date</p>
             </div>
           ) : null}

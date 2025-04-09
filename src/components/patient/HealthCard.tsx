@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Alert, Clock, Heart } from "lucide-react";
+import { AlertCircle, Clock, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Patient } from "@/models/types";
 
@@ -14,7 +14,7 @@ export const HealthCard: React.FC<HealthCardProps> = ({ patient }) => {
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <Alert className="text-red-500" size={16} />
+            <AlertCircle className="text-red-500" size={16} />
             <h3 className="font-semibold">Emergency Health Card</h3>
           </div>
           <button className="text-xs text-medilink-600">View Full Card</button>
