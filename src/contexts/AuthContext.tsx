@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,7 @@ interface Profile {
   id: string;
   user_type: 'patient' | 'provider';
   full_name: string | null;
+  avatar_url: string | null;
 }
 
 interface AuthContextType {
@@ -34,7 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
@@ -54,7 +53,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -124,7 +122,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile({
       id: userType === 'patient' ? 'demo-patient' : 'demo-provider',
       user_type: userType,
-      full_name: userType === 'patient' ? 'Demo Patient' : 'Demo Provider'
+      full_name: userType === 'patient' ? 'Demo Patient' : 'Demo Provider',
+      avatar_url: null
     });
     
     const destination = userType === 'provider' ? '/provider' : '/dashboard';
