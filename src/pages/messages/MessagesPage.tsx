@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Search, MessageSquare, User, ChevronRight } from "lucide-react";
 import { Header } from "@/components/common/Header";
@@ -18,12 +19,12 @@ interface MessageUser {
 }
 
 const MessagesPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   
   const userMessages = mockMessages.filter(message => 
-    (user?.role === "patient" && message.recipientId === "p1") ||
-    (user?.role === "provider" && message.recipientId === "d1")
+    (profile?.user_type === "patient" && message.recipientId === "p1") ||
+    (profile?.user_type === "provider" && message.recipientId === "d1")
   );
   
   const filteredMessages = userMessages.filter(message =>
@@ -52,7 +53,12 @@ const MessagesPage: React.FC = () => {
 
   return (
     <div className="pb-20">
-      <Header title="Messages" showNotifications showAvatar avatarSrc={user?.avatarUrl} />
+      <Header 
+        title="Messages" 
+        showNotifications 
+        showAvatar 
+        avatarSrc={profile?.avatar_url} 
+      />
       
       <div className="p-4">
         <div className="relative mb-4">

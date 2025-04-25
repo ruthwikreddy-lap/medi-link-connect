@@ -33,7 +33,8 @@ const Login: React.FC = () => {
   };
 
   const handleDemoLogin = (role: "patient" | "provider") => {
-    setUserRole(role);
+    // Use setDemoMode from AuthContext instead of the undefined setUserRole
+    setDemoMode(role);
     navigate("/");
   };
 
