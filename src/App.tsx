@@ -3,44 +3,61 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { MobileLayout } from "./components/layout/MobileLayout";
-
-// Pages
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-import MedicalRecordsPage from "./pages/records/MedicalRecordsPage";
-import MessagesPage from "./pages/messages/MessagesPage";
-import AppointmentsCalendar from "./pages/calendar/AppointmentsCalendar";
+import PatientDashboard from "./pages/PatientDashboard";
+import ProviderDashboard from "./pages/ProviderDashboard";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-const queryClient = new QueryClient();
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            
-            {/* Protected routes inside mobile layout */}
-            <Route element={<MobileLayout />}>
+      <Toaster />
+      <Sonner position="top-right" closeButton richColors />
+      <BrowserRouter>
+        <AuthProvider>
+          <div className="page-transition-wrapper">
+            <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/records" element={<MedicalRecordsPage />} />
-              <Route path="/messages" element={<MessagesPage />} />
-              <Route path="/appointments" element={<AppointmentsCalendar />} />
-              <Route path="/schedule" element={<AppointmentsCalendar />} />
-            </Route>
-            
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+              
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute userType="patient">
+                    <PatientDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/provider" 
+                element={
+                  <ProtectedRoute userType="provider">
+                    <ProviderDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route path="/home" element={<Navigate to="/" replace />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

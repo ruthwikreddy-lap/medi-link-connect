@@ -1,111 +1,146 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { toast } from "sonner";
+// Demo profiles for the application
+const DEMO_PROFILES = {
+  patient: {
+    id: "demo-patient-id",
+    user_type: 'patient' as const,
+    full_name: 'Demo Patient',
+  },
+  provider: {
+    id: "demo-provider-id",
+    user_type: 'provider' as const,
+    full_name: 'Demo Provider',
+  }
+};
 
-export type UserRole = "patient" | "provider";
-
-export interface User {
+interface Profile {
   id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar?: string;
+  user_type: 'patient' | 'provider';
+  full_name: string | null;
 }
 
 interface AuthContextType {
+  session: Session | null;
   user: User | null;
+  profile: Profile | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  setUserRole: (role: UserRole) => void;
+  signIn: (email: string, password: string) => Promise<{ error: any | null }>;
+  signUp: (email: string, password: string, userData: { full_name: string, user_type: 'patient' | 'provider' }) => Promise<{ error: any | null }>;
+  signOut: () => Promise<void>;
+  setDemoMode: (userType: 'patient' | 'provider') => void;
+  isDemoMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
-
-// Mock patient data
-const MOCK_PATIENT: User = {
-  id: "p1",
-  name: "Jane Smith",
-  email: "jane@example.com",
-  role: "patient",
-  avatar: "https://i.pravatar.cc/150?img=44",
-};
-
-// Mock provider data
-const MOCK_PROVIDER: User = {
-  id: "d1",
-  name: "Dr. Michael Johnson",
-  email: "dr.johnson@example.com",
-  role: "provider",
-  avatar: "https://i.pravatar.cc/150?img=52",
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(true); // Default to demo mode
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for stored authentication
-    const savedUser = localStorage.getItem("medilink-user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    // Set demo patient profile by default
+    setProfile(DEMO_PROFILES.patient);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const setDemoMode = (userType: 'patient' | 'provider') => {
+    setProfile(userType === 'patient' ? DEMO_PROFILES.patient : DEMO_PROFILES.provider);
+    
+    // Navigate to the appropriate dashboard
+    const destination = userType === 'provider' ? '/provider' : '/dashboard';
+    navigate(destination);
+    
+    toast.success(`Switched to ${userType} demo mode`, {
+      description: `You are now viewing the app as a demo ${userType}.`,
+    });
+  };
+
+  // Keep these methods for compatibility, but they'll just switch to demo mode
+  const signIn = async (email: string, password: string) => {
     setIsLoading(true);
+    
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Determine user type based on email for demo purposes
+      const userType = email.includes('provider') ? 'provider' : 'patient';
+      setDemoMode(userType);
       
-      // Demo login logic - in a real app, this would verify with a server
-      if (email === "jane@example.com" && password === "password") {
-        setUser(MOCK_PATIENT);
-        localStorage.setItem("medilink-user", JSON.stringify(MOCK_PATIENT));
-        toast.success("Logged in as patient");
-      } else if (email === "doctor@example.com" && password === "password") {
-        setUser(MOCK_PROVIDER);
-        localStorage.setItem("medilink-user", JSON.stringify(MOCK_PROVIDER));
-        toast.success("Logged in as healthcare provider");
-      } else {
-        throw new Error("Invalid credentials");
-      }
-    } catch (error) {
-      toast.error("Login failed: Invalid email or password");
-      throw error;
+      return { error: null };
+    } catch (error: any) {
+      toast.error('Demo Mode Active', {
+        description: 'Authentication is disabled in demo mode.',
+      });
+      return { error };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("medilink-user");
-    toast.info("You have been logged out");
-  };
-
-  const setUserRole = (role: UserRole) => {
-    if (role === "patient") {
-      setUser(MOCK_PATIENT);
-      localStorage.setItem("medilink-user", JSON.stringify(MOCK_PATIENT));
-    } else {
-      setUser(MOCK_PROVIDER);
-      localStorage.setItem("medilink-user", JSON.stringify(MOCK_PROVIDER));
+  const signUp = async (
+    email: string, 
+    password: string, 
+    userData: { full_name: string, user_type: 'patient' | 'provider' }
+  ) => {
+    setIsLoading(true);
+    
+    try {
+      // Set demo mode based on selected user type
+      setDemoMode(userData.user_type);
+      
+      return { error: null };
+    } catch (error: any) {
+      toast.error('Demo Mode Active', {
+        description: 'Authentication is disabled in demo mode.',
+      });
+      return { error };
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, setUserRole }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const signOut = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Reset to patient demo by default
+      setProfile(DEMO_PROFILES.patient);
+      navigate('/');
+      toast.success('Returned to demo home');
+    } catch (error: any) {
+      toast.error('Error', {
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const value = {
+    session,
+    user,
+    profile,
+    isLoading,
+    signIn,
+    signUp,
+    signOut,
+    setDemoMode,
+    isDemoMode
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
