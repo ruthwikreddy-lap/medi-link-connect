@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search, MessageSquare, User, ChevronRight } from "lucide-react";
 import { Header } from "@/components/common/Header";
@@ -9,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { mockMessages } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { format, isToday, isYesterday } from "date-fns";
+
+interface MessageUser {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  role: 'patient' | 'provider';
+  lastSeen?: string;
+}
 
 const MessagesPage: React.FC = () => {
   const { user } = useAuth();
@@ -45,7 +52,7 @@ const MessagesPage: React.FC = () => {
 
   return (
     <div className="pb-20">
-      <Header title="Messages" showNotifications showAvatar avatarSrc={user?.avatar} />
+      <Header title="Messages" showNotifications showAvatar avatarSrc={user?.avatarUrl} />
       
       <div className="p-4">
         <div className="relative mb-4">

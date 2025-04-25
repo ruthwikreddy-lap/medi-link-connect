@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { NavBar } from '@/components/NavBar';
 import { HeroSection } from '@/components/HeroSection';
@@ -154,7 +153,7 @@ const Index = () => {
                     <User className="w-6 h-6" />
                   </div>
                   <h3 className="text-2xl font-semibold text-white">For Patients</h3>
-                  <TrustIndicator type="secure" size="sm" className="ml-auto" />
+                  <TrustIndicator type="certified" className="ml-auto" />
                 </div>
                 
                 <ul className="space-y-4">
@@ -203,7 +202,7 @@ const Index = () => {
                     <Hospital className="w-6 h-6" />
                   </div>
                   <h3 className="text-2xl font-semibold text-white">For Healthcare Providers</h3>
-                  <TrustIndicator type="hipaa" size="sm" className="ml-auto" />
+                  <TrustIndicator type="certified" className="ml-auto" />
                 </div>
                 
                 <ul className="space-y-4">
@@ -287,7 +286,7 @@ const Index = () => {
                 </p>
                 
                 <div className="flex flex-wrap gap-3 mt-6">
-                  <TrustIndicator type="hipaa" />
+                  <TrustIndicator type="certified" />
                   <TrustIndicator type="encrypted" />
                   <TrustIndicator type="certified" />
                 </div>
