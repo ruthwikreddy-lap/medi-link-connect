@@ -1,5 +1,5 @@
-
-import React, { useState } from "react";
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Search, MessageSquare, User, ChevronRight } from "lucide-react";
 import { Header } from "@/components/common/Header";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { mockMessages } from "@/data/mockData";
-import { useAuth } from "@/contexts/AuthContext";
 import { format, isToday, isYesterday } from "date-fns";
 
 interface MessageUser {
@@ -18,9 +17,11 @@ interface MessageUser {
   lastSeen?: string;
 }
 
-const MessagesPage: React.FC = () => {
-  const { user, profile } = useAuth();
+const MessagesPage = () => {
+  const { session, profile, isDemoMode } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const isAuthenticated = session || isDemoMode;
   
   const userMessages = mockMessages.filter(message => 
     (profile?.user_type === "patient" && message.recipientId === "p1") ||

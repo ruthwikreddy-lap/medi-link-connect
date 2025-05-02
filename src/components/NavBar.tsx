@@ -1,4 +1,5 @@
-
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -26,10 +27,9 @@ import {
 import { cn } from "@/lib/utils";
 import { TrustIndicator } from "@/components/TrustIndicator";
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 
 export const NavBar = () => {
-  const { user, profile, signOut } = useAuth();
+  const { session, profile, isDemoMode, signOut } = useAuth();
   const navigate = useNavigate();
   
   const [isScrolled, setIsScrolled] = useState(false);
@@ -86,6 +86,8 @@ export const NavBar = () => {
       navigate('/dashboard');
     }
   };
+
+  const isAuthenticated = session || isDemoMode;
 
   return (
     <>
@@ -268,7 +270,7 @@ export const NavBar = () => {
 
             {/* Desktop Login/Register Buttons or User Menu */}
             <div className="hidden md:flex items-center space-x-4">
-              {user ? (
+              {isAuthenticated ? (
                 <>
                   <Button 
                     onClick={handleDashboardClick}
@@ -377,7 +379,7 @@ export const NavBar = () => {
                 </a>
                 
                 <div className="flex flex-col space-y-3 pt-3 border-t border-gray-800">
-                  {user ? (
+                  {isAuthenticated ? (
                     <>
                       <Button 
                         onClick={() => {
@@ -451,3 +453,5 @@ export const NavBar = () => {
     </>
   );
 };
+
+export default NavBar;

@@ -1,12 +1,11 @@
-
-import { useState } from 'react';
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import { LoginModal } from './LoginModal';
 import { Badge } from "@/components/ui/badge";
 import { TrustIndicator } from "@/components/TrustIndicator";
 import { Calendar } from "@/components/ui/calendar";
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { 
   ChevronRight, Stethoscope, User, 
   ShieldCheck, LockKeyhole, Heart, 
@@ -17,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const HeroSection = () => {
-  const { user, profile, signOut } = useAuth();
+  const { session, profile, isDemoMode } = useAuth();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loginType, setLoginType] = useState<'patient' | 'provider'>('patient');
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -26,6 +25,8 @@ export const HeroSection = () => {
     setLoginType(type);
     setLoginModalOpen(true);
   };
+
+  const isAuthenticated = session || isDemoMode;
 
   return (
     <section className="relative min-h-screen pt-28 pb-20 flex items-center overflow-hidden bg-neutral-950">
@@ -66,7 +67,7 @@ export const HeroSection = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              {user ? (
+              {isAuthenticated ? (
                 <Link to={profile?.user_type === 'provider' ? '/provider' : '/dashboard'}>
                   <Button 
                     size="xl"
@@ -87,7 +88,7 @@ export const HeroSection = () => {
                 </Button>
               )}
               
-              {user ? (
+              {isAuthenticated ? (
                 <Button 
                   onClick={() => signOut()}
                   variant="trust"
@@ -112,7 +113,7 @@ export const HeroSection = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              {!user && (
+              {!isAuthenticated && (
                 <Button 
                   onClick={() => handleLoginClick('provider')}
                   variant="outline"
@@ -288,3 +289,5 @@ export const HeroSection = () => {
     </section>
   );
 };
+
+export default HeroSection;
