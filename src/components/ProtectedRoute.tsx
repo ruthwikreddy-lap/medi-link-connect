@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   userType = null,
   requireAuth = true
 }) => {
-  const { profile, isLoading, isDemoMode, setDemoMode } = useAuth();
+  const { profile, isLoading, session, isDemoMode, setDemoMode } = useAuth();
   const location = useLocation();
 
   // If still loading, show loading spinner
@@ -30,8 +30,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // If auth is required but user is not in demo mode
-  if (requireAuth && !profile) {
+  // If auth is required but user is not authenticated
+  if (requireAuth && !session && !isDemoMode) {
     // Redirect to login page but save the location they tried to access
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -43,9 +43,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <>{children}</>;
   }
   
-  // If userType is specified and doesn't match current profile,
+  // If userType is specified and doesn't match current profile in authenticated mode,
   // redirect to appropriate dashboard
-  if (profile && userType && profile.user_type !== userType) {
+  if (!isDemoMode && session && userType && profile && profile.user_type !== userType) {
     const redirectPath = profile.user_type === 'patient' ? '/dashboard' : '/provider';
     return <Navigate to={redirectPath} replace />;
   }
