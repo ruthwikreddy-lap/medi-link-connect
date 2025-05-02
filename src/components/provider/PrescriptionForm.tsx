@@ -30,6 +30,20 @@ interface Patient {
   full_name: string;
 }
 
+// Define a type for the prescription data to ensure type safety
+interface Prescription {
+  id: string;
+  patient_id: string;
+  provider_id: string;
+  medication: string;
+  dosage: string;
+  frequency: string;
+  instructions: string | null;
+  start_date: string;
+  end_date: string | null;
+  status: string;
+}
+
 const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ 
   patientId, 
   prescriptionId,
